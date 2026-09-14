@@ -16,6 +16,7 @@ export GITHUB_TOKEN=带read:packages的token
 App 有两页：**钱包**（生成、看地址、看助记词）和 **FFI**（版本号、网络回调）。
 
 > 📐 **先搞清楚谁负责什么**：[App 端和 Core 端的功能边界](app端和core端的功能边界.md)
+> · [App 的数据从哪来](app数据来源.md)
 > —— 网络全部由你发（`.so` 里没编译 HTTP 客户端）、存储只有 keystore 文件归 Rust。
 
 ---
@@ -302,9 +303,11 @@ WalletDatabase.kt        SQLite
 SelfTest.kt              无头自检
 build.sh                 一键构建运行
 app端和core端的功能边界.md   网络与存储的职责划分
+app数据来源.md            三个数据来源与后端端点清单
 ```
 
 - [App 端和 Core 端的功能边界](app端和core端的功能边界.md) —— 网络与存储的职责划分，附实测证据
+- [App 的数据从哪来](app数据来源.md) —— 后端 / 链上 / 本地三个来源，含全部后端端点
 
 更多背景见 gem 仓库根目录的 `安卓如何使用gem从0开发钱包.md`、
 `安卓跑apk出现的问题以及解决.md`、`gem私钥管理.md`。
