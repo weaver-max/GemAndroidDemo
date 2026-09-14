@@ -123,7 +123,7 @@ Rust 不自己发网络请求、不自己存偏好设置，它定义接口让你
 
 ---
 
-## 3. 六个容易踩的坑
+## 3. 七个容易踩的坑
 
 ### 链名是字符串，不是枚举
 
@@ -168,6 +168,23 @@ resp.status   // ❌ 没这个属性
 ```
 
 它是给 Rust 消费的。要记状态码就在构造之前记。
+
+### Rust 对象要释放，且构造很贵
+
+`GemGateway` `GemKeystore` `GemSwapper` `GemMnemonic` 都实现了
+`Disposable` / `AutoCloseable` —— **它们持有 Rust 侧的堆内存**，
+不是普通的 Kotlin 对象，不关会泄漏。
+
+```kotlin
+// 临时用的一定要 use{}
+GemMnemonic().use { it.generate(12u) }
+
+// 长期用的做成单例，别每次调用都 new
+val gateway = GemGateway(provider, prefs, securePrefs, apiUrl)
+```
+
+`GemGateway` 构造时会建好 `chain_factory` / `api_client` / `yielder` /
+`swapper` / `status_provider` 一整套，不便宜。
 
 ### `createStore` 很慢
 
