@@ -1,0 +1,22 @@
+pluginManagement {
+    repositories { google(); mavenCentral(); gradlePluginPortal() }
+}
+dependencyResolutionManagement {
+    repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+    repositories {
+        google()
+        mavenCentral()
+        // 🔴 GitHub Packages 的 Maven registry 即使对 public 仓库也强制要鉴权。
+        //    没配凭据会拿到 401 Unauthorized（不是 404，很容易误判成包不存在）。
+        maven {
+            url = uri("https://maven.pkg.github.com/" +
+                    (System.getenv("GITHUB_PACKAGES_REPO") ?: "weaver-max/wallet"))
+            credentials {
+                username = System.getenv("GITHUB_ACTOR") ?: providers.gradleProperty("gpr.user").orNull
+                password = System.getenv("GITHUB_TOKEN") ?: providers.gradleProperty("gpr.token").orNull
+            }
+        }
+    }
+}
+rootProject.name = "GemAndroidDemo"
+include ':app'

@@ -1,0 +1,59 @@
+plugins {
+    id 'com.android.application'
+    // Kotlin 支持由 AGP 9 内置，不需要 org.jetbrains.kotlin.android
+    id 'org.jetbrains.kotlin.plugin.compose'
+}
+
+// 版本可传参：./gradlew -PgemstoneVersion=2.114.10
+def gemstoneVersion = project.findProperty('gemstoneVersion') ?: '2.114.10'
+
+android {
+    namespace 'com.example.gemdemo'
+
+    // 🔴 三条硬约束，低于任何一条都编不过：
+    //    compileSdk 不能低于 AAR 的 37；Android 37 起是 major.minor 方案，
+    //    SDK 源里只有 android-37.0，没有裸 android-37，所以必须写 compileSdkMinor。
+    compileSdk 37
+    compileSdkMinor 0
+
+    defaultConfig {
+        applicationId "com.example.gemdemo"
+        minSdk 28                      // 🔴 不能低于 AAR 的 minSdk
+        targetSdk 36
+        versionCode 1
+        versionName "0.1.0"
+    }
+
+    // 🔴 AAR 是 JVM 17 编的。停在 1.8 时，凡是内联 AAR 里的方法都会报
+    //    "Cannot inline bytecode built with JVM target 17 into ... 1.8"
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+    buildFeatures { compose true }
+
+    buildTypes {
+        debug { }
+        release { minifyEnabled false }
+    }
+}
+
+// 🔴 AGP 9 内置 Kotlin 后，android { kotlinOptions {} } 已被移除，
+//    改用顶层 kotlin { compilerOptions {} }。
+kotlin {
+    compilerOptions {
+        jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_17
+    }
+}
+
+dependencies {
+    // JNA 由 AAR 以 api 方式传递进来，不用自己声明
+    implementation "com.gemwallet.gemstone:gemstone:${gemstoneVersion}@aar"
+    implementation "net.java.dev.jna:jna:5.18.1@aar"
+
+    implementation "androidx.core:core-ktx:1.16.0"
+    implementation "androidx.activity:activity-compose:1.10.1"
+    implementation platform("androidx.compose:compose-bom:2025.05.00")
+    implementation "androidx.compose.ui:ui"
+    implementation "androidx.compose.material3:material3"
+}
