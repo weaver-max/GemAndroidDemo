@@ -123,7 +123,7 @@ Rust 不自己发网络请求、不自己存偏好设置，它定义接口让你
 
 ---
 
-## 3. 七个容易踩的坑
+## 3. 八个容易踩的坑
 
 ### 链名是字符串，不是枚举
 
@@ -168,6 +168,25 @@ resp.status   // ❌ 没这个属性
 ```
 
 它是给 Rust 消费的。要记状态码就在构造之前记。
+
+### 要做链上功能，必须实现两个接口
+
+```
+GemGateway(provider, preferences, securePreferences, apiUrl)
+```
+
+构造函数**要求四个参数**，缺一个编译不过。所以除了 `AlienProvider`，
+还得实现 **两套** `GemPreferences`：
+
+| 参数 | 用什么 |
+|---|---|
+| `preferences` | SharedPreferences |
+| `securePreferences` | 🔴 **EncryptedSharedPreferences** |
+
+两个都传普通存储能跑，但 HyperCore 会往 `securePreferences` 里写
+**agent 私钥** —— 指向普通存储等于私钥明文落盘。
+
+本 demo 只演示钱包生成（不碰 `GemGateway`），所以没实现它。
 
 ### Rust 对象要释放，且构造很贵
 
